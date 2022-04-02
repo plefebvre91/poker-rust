@@ -1,3 +1,6 @@
+mod game;
+
 fn main() {
-    println!("Hello, world!");
+    let mut game = game::Game::default();
+    game.run();
 }
