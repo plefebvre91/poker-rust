@@ -6,6 +6,9 @@ use yacurses::*;
 #[path="utils/mod.rs"]
 pub mod utils;
 
+#[path="ui/mod.rs"]
+pub mod ui;
+
 #[path="card.rs"]
 pub mod card;
 
@@ -104,9 +107,46 @@ impl Game {
 
     fn display(&mut self) -> () {
         let mut counter = 0;
+        utils::rectangle(&mut self.window, &utils::types::Vector2d {x: 0, y: 0}, &utils::types::Size{ w: 31, h: 4 });
+        self.window.move_cursor(Position {x: 10, y: 2});
+        self.window.print_str("Poker Rust");
+
+
+        let b = ui::Label { label: String::from("Actions"), position: utils::types::Vector2d {x: 12, y: 6}};
+        b.draw(&mut self.window);
+        let b = ui::Button { label: String::from("BET+"), position: utils::types::Vector2d {x: 9, y: 8}, focused: true };
+        b.draw(&mut self.window);
+        let b = ui::Button { label: String::from("BET-"), position: utils::types::Vector2d {x: 9, y: 11}, focused: false };
+        b.draw(&mut self.window);
+        let b = ui::Button { label: String::from("BET"), position: utils::types::Vector2d {x: 9, y: 14}, focused: false};
+        b.draw(&mut self.window);
+        let b = ui::Number { label: String::from("Bet"), value: 1000, position: utils::types::Vector2d {x: 9, y: 18}};
+        b.draw(&mut self.window);
+        let b = ui::Number { label: String::from("Win"), value: 12000, position: utils::types::Vector2d {x: 9, y: 19}};
+        b.draw(&mut self.window);
+
+        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 42, y: 17}, selected: true };
+        b.draw(&mut self.window);
+
+        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 62, y: 17}, selected: false };
+        b.draw(&mut self.window);
+
+        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 82, y: 17}, selected: false };
+        b.draw(&mut self.window);
+
+
+        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 102, y: 17}, selected: false };
+        b.draw(&mut self.window);
+
+        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 122, y: 17}, selected: false };
+        b.draw(&mut self.window);
+
+
+        utils::rectangle(&mut self.window, &utils::types::Vector2d {x: 0, y: 5}, &utils::types::Size{ w: 31, h: 16 });
+        utils::rectangle(&mut self.window, &utils::types::Vector2d {x: 32, y: 5}, &utils::types::Size{ w: 110, h: 16 });
         for i in self.board {
             let id: usize = i as usize;
-            let position = utils::types::Vector2d {x: counter*20, y: 10 };
+            let position = utils::types::Vector2d {x: counter*20 + 42, y: 7 };
             self.cards[id].draw(&mut self.window, position);
             counter += 1;
         }
@@ -119,14 +159,13 @@ impl Game {
 
     pub fn run(&mut self) -> () {
         while !self.is_finished() {
-            // match window.poll_events() {
-            //     Some(ArrowLeft) => break,
-            //     _ => (),
-            //  }
-
-            thread::sleep(time::Duration::from_millis(1000));
             self.display();
             self.window.refresh().ok();
+            match self.window.poll_events() {
+                Some(ArrowLeft) => break,
+                _ => (),
+             }
+            thread::sleep(time::Duration::from_millis(1000));
         }
     }
 }
