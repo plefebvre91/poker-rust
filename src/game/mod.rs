@@ -26,6 +26,7 @@ pub struct Game {
     board: [i32; BOARD_SIZE],
     selected: Vec<u32>,
     window: Curses,
+    ui: ui::Ui,
 }
 
 
@@ -36,6 +37,7 @@ impl Default for Game {
             selected: Vec::new(),
 	        chips: 1000,
             window: Curses::init(),
+            ui: ui::new(),
 	        cards: [
         		card::Card {color: card::Color::Spade, value: card::Value::Ace },
         		card::Card {color: card::Color::Spade, value: card::Value::Two },
@@ -100,9 +102,9 @@ impl Default for Game {
 
 impl Game {
     fn init(&mut self) -> () {
+        self.window.clear().ok();
         self.window.set_echo(false).ok();
         self.window.set_cursor_visibility(CursorVisibility::Invisible).ok();
-        self.window.clear().ok();
     }
 
     fn display(&mut self) -> () {
@@ -111,36 +113,8 @@ impl Game {
         self.window.move_cursor(Position {x: 10, y: 2});
         self.window.print_str("Poker Rust");
 
-
-        let b = ui::Label { label: String::from("Actions"), position: utils::types::Vector2d {x: 12, y: 6}};
-        b.draw(&mut self.window);
-        let b = ui::Button { label: String::from("BET+"), position: utils::types::Vector2d {x: 9, y: 8}, focused: true };
-        b.draw(&mut self.window);
-        let b = ui::Button { label: String::from("BET-"), position: utils::types::Vector2d {x: 9, y: 11}, focused: false };
-        b.draw(&mut self.window);
-        let b = ui::Button { label: String::from("BET"), position: utils::types::Vector2d {x: 9, y: 14}, focused: false};
-        b.draw(&mut self.window);
-        let b = ui::Number { label: String::from("Bet"), value: 1000, position: utils::types::Vector2d {x: 9, y: 18}};
-        b.draw(&mut self.window);
-        let b = ui::Number { label: String::from("Win"), value: 12000, position: utils::types::Vector2d {x: 9, y: 19}};
-        b.draw(&mut self.window);
-
-        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 42, y: 17}, selected: true };
-        b.draw(&mut self.window);
-
-        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 62, y: 17}, selected: false };
-        b.draw(&mut self.window);
-
-        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 82, y: 17}, selected: false };
-        b.draw(&mut self.window);
-
-
-        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 102, y: 17}, selected: false };
-        b.draw(&mut self.window);
-
-        let b = ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 122, y: 17}, selected: false };
-        b.draw(&mut self.window);
-
+        self.ui.update(&mut self.window);
+    
 
         utils::rectangle(&mut self.window, &utils::types::Vector2d {x: 0, y: 5}, &utils::types::Size{ w: 31, h: 16 });
         utils::rectangle(&mut self.window, &utils::types::Vector2d {x: 32, y: 5}, &utils::types::Size{ w: 110, h: 16 });
@@ -161,7 +135,7 @@ impl Game {
         while !self.is_finished() {
             self.display();
             self.window.refresh().ok();
-            match self.window.poll_events() {
+                match self.window.poll_events() {
                 Some(ArrowLeft) => break,
                 _ => (),
              }
