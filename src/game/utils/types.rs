@@ -7,5 +7,3 @@ pub struct Size {
     pub w: u32,
     pub h: u32,
 }
-
-type Point = Vector2d;

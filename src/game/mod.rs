@@ -1,4 +1,3 @@
-use rand::prelude::*;
 use std::{thread, time};
 
 use yacurses::*;
@@ -17,7 +16,6 @@ const NB_CARDS: usize = 52;
 const NB_CHIPS: u32 = 1000;
 const BOARD_SIZE: usize = 5;
 const NB_MAX_SELECTED: usize = 5;
-const EMPTY: i32 = -1;
 
 
 pub struct Game {
@@ -28,7 +26,6 @@ pub struct Game {
     window: Curses,
     ui: ui::Ui,
 }
-
 
 impl Default for Game {
     fn default() -> Game {
@@ -106,20 +103,21 @@ impl Game {
         self.window.set_echo(false).ok();
         self.window.set_cursor_visibility(CursorVisibility::Invisible).ok();
 
+
         // Add labels
         self.ui.add_static_element(Box::new(ui::Label { label: String::from("Actions"), position: utils::types::Vector2d {x: 12, y: 6}}));
-        self.ui.add_static_element(Box::new(ui::Number { label: String::from("Bet"), value: 1000, position: utils::types::Vector2d {x: 9, y: 18}}));
+        self.ui.add_static_element(Box::new(ui::Number { label: String::from("Bet"), value: 0, position: utils::types::Vector2d {x: 9, y: 18}}));
         self.ui.add_static_element(Box::new(ui::Number { label: String::from("Win"), value: 12000, position: utils::types::Vector2d {x: 9, y: 19}}));
 
         // Buttons and checkoxes
-        self.ui.add_dynamic_element(Box::new(ui::Button { label: String::from("BET+"), position: utils::types::Vector2d {x: 9, y: 8}, focused: true }));
-        self.ui.add_dynamic_element(Box::new(ui::Button { label: String::from("BET-"), position: utils::types::Vector2d {x: 9, y: 11}, focused: false }));
-        self.ui.add_dynamic_element(Box::new(ui::Button { label: String::from("BET"), position: utils::types::Vector2d {x: 9, y: 14}, focused: false}));
-        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 42, y: 17}, selected: false, focused: false }));
-        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 62, y: 17}, selected: false, focused: false }));
-        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 82, y: 17}, selected: false, focused: false }));
-        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 102, y: 17}, selected: false, focused: false }));
-        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 122, y: 17}, selected: false, focused: false }));
+        self.ui.add_dynamic_element(Box::new(ui::Button { label: String::from("BET+"), position: utils::types::Vector2d {x: 9, y: 8}, focused: true, ..Default::default() }));
+        self.ui.add_dynamic_element(Box::new(ui::Button { label: String::from("BET-"), position: utils::types::Vector2d {x: 9, y: 11}, ..Default::default() }));
+        self.ui.add_dynamic_element(Box::new(ui::Button { label: String::from("BET"), position: utils::types::Vector2d {x: 9, y: 14}, ..Default::default() }));
+        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 42, y: 17}, ..Default::default() }));
+        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 62, y: 17}, ..Default::default() }));
+        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 82, y: 17}, ..Default::default() }));
+        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 102, y: 17}, ..Default::default() }));
+        self.ui.add_dynamic_element(Box::new(ui::Checkbox { label: String::from("Keep"), position: utils::types::Vector2d {x: 122, y: 17}, ..Default::default() }));
     }
 
     fn display(&mut self) -> () {
@@ -145,17 +143,17 @@ impl Game {
 	       return self.chips == 0;
     }
 
-
     pub fn run(&mut self) -> () {
         self.init();
         while !self.is_finished() {
             self.display();
             self.window.refresh().ok();
-                match self.window.poll_events() {
+            match self.window.poll_events() {
                 Some(CursesKey::ArrowLeft) => self.ui.previous(),
                 Some(CursesKey::ArrowRight) => self.ui.next(),
-                _ => (),
-             }
+                _ => continue,
+
+         }
             thread::sleep(time::Duration::from_millis(100));
         }
     }

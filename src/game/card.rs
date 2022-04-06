@@ -31,10 +31,6 @@ pub struct Card {
     pub value: Value,
 }
 
-pub fn new() -> Card {
-    Card { color: Color::Spade, value: Value::Ace }
-}
-
 impl Default for Card {
     fn default() -> Card {
 	       Card { color: Color::Spade, value: Value::Ace }

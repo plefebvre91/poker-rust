@@ -1,7 +1,4 @@
-use super::utils::types;
-use super::utils;
 use yacurses::*;
-use std::fmt::format;
 
 
 const LABEL_OFFSET: u32 = 2;
@@ -49,17 +46,36 @@ impl UIElement for Label {
     }
 }
 
+impl Default for Button {
+    fn default() -> Button {
+        Button {
+            label: String::from("default"),
+            focused: false,
+            position: super::utils::types::Vector2d {x: 0, y:0 },
+        }
+    }
+}
+
+impl Default for Checkbox {
+    fn default() -> Checkbox {
+        Checkbox {
+            label: String::from("default"),
+            focused: false,
+            position: super::utils::types::Vector2d {x: 0, y:0 },
+            selected: false,
+        }
+    }
+}
 
 impl UIElement for Number {
     fn draw(&self, window: &mut Curses) {
-        window.set_attributes(Attributes::UNDERLINE, true);
-        window.move_cursor(Position {x: self.position.x, y: self.position.y });
-        window.print_str(&format!("{}:", &self.label));
-        window.set_attributes(Attributes::UNDERLINE, false);
-        window.set_attributes(Attributes::BOLD, true);
-        //window.move_cursor(Position {x: self.position.x+label.len()+4, y: self.position.y });
-        window.print_str(&format!(" {:>8}", &self.value));
-        window.set_attributes(Attributes::BOLD, false);
+        window.set_attributes(Attributes::UNDERLINE, true).unwrap();
+        window.move_cursor(Position {x: self.position.x, y: self.position.y }).unwrap();
+        window.print_str(&format!("{}:", &self.label)).unwrap();
+        window.set_attributes(Attributes::UNDERLINE, false).unwrap();
+        window.set_attributes(Attributes::BOLD, true).unwrap();
+        window.print_str(&format!(" {:>8}", &self.value)).unwrap();
+        window.set_attributes(Attributes::BOLD, false).unwrap();
     }
 }
 
@@ -74,7 +90,7 @@ impl UIElement for Button {
     fn draw(&self, window: &mut Curses) {
 
         if self.focused {
-            window.set_attributes(Attributes::BOLD, true);
+            window.set_attributes(Attributes::BOLD, true).unwrap();
         }
 
         super::utils::rectangle(window, &self.position, &super::utils::types::Size{ w: BUTTON_WIDTH, h: BUTTON_HEIGHT});
@@ -82,7 +98,7 @@ impl UIElement for Button {
         window.print_str(&format!("{:^10}", &self.label));
 
         if self.focused {
-            window.set_attributes(Attributes::BOLD, false);
+            window.set_attributes(Attributes::BOLD, false).unwrap();
         }
     }
 }
@@ -97,25 +113,25 @@ impl UIFocusable for Checkbox {
 impl UIElement for Checkbox {
     fn draw(&self, window: &mut Curses) {
         super::utils::rectangle(window, &self.position, &super::utils::types::Size{ w: BUTTON_WIDTH, h: BUTTON_HEIGHT});
-        window.move_cursor(Position {x: self.position.x+LABEL_OFFSET, y: self.position.y+1 });
+        window.move_cursor(Position {x: self.position.x+LABEL_OFFSET, y: self.position.y+1 }).unwrap();
         let mark =  if self.selected { CursesGlyph::from('o') } else { CursesGlyph::from(' ') };
 
         if self.focused {
-            window.set_attributes(Attributes::BOLD, true);
+            window.set_attributes(Attributes::BOLD, true).unwrap();
         }
 
         if self.selected {
-            window.set_attributes(Attributes::ITALIC, true);
+            window.set_attributes(Attributes::ITALIC, true).unwrap();
         }
         window.print_ch(mark);
         window.print_str(&format!("{:^9}", &self.label));
 
         if self.selected {
-            window.set_attributes(Attributes::ITALIC, false);
+            window.set_attributes(Attributes::ITALIC, false).unwrap();
         }
 
         if self.focused {
-            window.set_attributes(Attributes::BOLD, false);
+            window.set_attributes(Attributes::BOLD, false).unwrap();
         }
     }
 }
@@ -130,18 +146,6 @@ pub struct Ui {
     current_element_id: usize,
 }
 
-enum UIEvent {
-    PressLeft,
-    PressRight,
-    PressUp,
-    PressDown,
-    PressEnter,
-}
-
-enum UIState {
-    UIBet,
-    UIDraw,
-}
 
 impl Ui {
     pub fn update(&self, window: &mut Curses) {
